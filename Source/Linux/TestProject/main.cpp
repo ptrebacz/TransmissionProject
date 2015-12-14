@@ -1,10 +1,12 @@
-#ifdef LINUX
+#ifdef __linux__
 
 #include "main.h"
 
-void main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
-	BTransmission *transmission = new BTransmission();
+    BTransmission *transmission = new BTransmission();
+
+    return 1;
 };
 
 #endif

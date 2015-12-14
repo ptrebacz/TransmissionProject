@@ -1,10 +1,7 @@
-//---------------------------------------------------------------------------
-
 #ifndef b_transmissionH
 #define b_transmissionH
 
-#include "b_collection.h"
-#include <System.hpp>
+#include "b_basicclass.h"
 
 class BTransmission;
 class BTransaction;
@@ -35,7 +32,7 @@ class BTransaction : public BCollection
 		BTransaction();
 		~BTransaction();
 
-		UnicodeString name;
+		MString name;
 };
 
 #endif
