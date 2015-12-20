@@ -22,7 +22,7 @@ BTransmission::BTransmission()
 //---------------------------------------------------------------------------
 void BTransmission::Add(BTransaction *transaction)
 {
-	AddItem(transaction, Count);
+	AddItem(transaction);
 }
 
 //---------------------------------------------------------------------------
@@ -32,7 +32,7 @@ void BTransmission::Add(BTransaction *transaction)
 //---------------------------------------------------------------------------
 BTransmission::~BTransmission()
 {
-	int i =0;
+
 }
 
 //---------------------------------------------------------------------------
@@ -42,8 +42,7 @@ BTransmission::~BTransmission()
 //---------------------------------------------------------------------------
 BTransaction::BTransaction()
 {
-	name = "";
-
+	name = new MString;
 }
 
 //---------------------------------------------------------------------------
@@ -53,7 +52,7 @@ BTransaction::BTransaction()
 //---------------------------------------------------------------------------
 BTransaction::~BTransaction()
 {
-	int i =0;
+	SAFEDELETE(name);
 }
 
 

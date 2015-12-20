@@ -18,7 +18,7 @@ class BTransmission : public BCollection
 		~BTransmission();
 
 		void Add(BTransaction *);
-		BTransaction *GetItem(int index){return((index<0 || index >= Count)?NULL:(BTransaction*)Items[index]);};
+		BTransaction *GetItemObject(int index){return (BTransaction*)GetItem(index);};
 };
 
 //---------------------------------------------------------------------------
@@ -32,7 +32,7 @@ class BTransaction : public BCollection
 		BTransaction();
 		~BTransaction();
 
-		MString name;
+		MString *name;
 };
 
 #endif

@@ -104,22 +104,23 @@ __fastcall TForm16::TForm16(TComponent* Owner)
 void __fastcall TForm16::cxButton2Click(TObject *Sender)
 {
 
-//	CTransmission *transmission = new CTransmission();
-//
-//	for(int i=0; i<10000000; i++)
-//	{
-//		CTransaction *transaction1 = new CTransaction();
-//		transaction1->name = "abc"+(UnicodeString)i;
-//		transmission->Add(transaction1);
-//	}
-//
-//	SAFEDELETE(transmission);
-//
-//	CTransaction *transaction1 = new CTransaction();
-//	CTransaction *transaction2 = transaction1;
-//
-//	SAFEDELETE(transaction1);
-//	int i =0;
+	BTransmission *transmission = new BTransmission();
+
+	for(int i=0; i<50000000; i++)
+	{
+		BTransaction *transaction1 = new BTransaction();
+		*transaction1->name = "abc"+(UnicodeString)i;
+		transmission->Add(transaction1);
+		transmission->Delete(transaction1);
+	}
+
+	SAFEDELETE(transmission);
+
+	BTransaction *transaction1 = new BTransaction();
+	BTransaction *transaction2 = transaction1;
+
+	SAFEDELETE(transaction1);
+	int i =0;
 
 }
 //---------------------------------------------------------------------------

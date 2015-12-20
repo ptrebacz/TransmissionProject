@@ -12,11 +12,122 @@
 //---------------------------------------------------------------------------
 BCollection::BCollection()
 {
-	Count = 0;
-	ItemIndex = -1;
+	mcs = new MCriticalSection();
+	Counter = new int;
+	*Counter = 0;
+	ItemIndex = new int;
+	*ItemIndex = -1;
 	Parent = NULL;
 	Items = NULL;
+}
 
+//---------------------------------------------------------------------------
+//	ActionOnCollection
+//
+//
+//---------------------------------------------------------------------------
+BCollection *BCollection::ActionOnCollection(int type, BCollection* object, int index, int *res)
+{
+	try
+	{
+        mcs->Enter();
+		switch(type)
+		{
+			//Add
+			case 0:
+			{
+				PrivateAddItem(object, index);
+				break;
+			}
+			//GetItem
+			case 1:
+			{
+				return PrivateGetItem(index);
+				break;
+			}
+			//GetItemIndex
+			case 2:
+			{
+				*res = PrivateGetItemIndex();
+				break;
+			}
+			//Delete item
+			case 3:
+			{
+				PrivateDeleteItem(index);
+				break;
+			}
+			//Delete object
+			case 4:
+			{
+				PrivateDelete(object);
+				break;
+			}
+			//Delete all
+			case 5:
+			{
+				PrivateDeleteAll();
+				break;
+			}
+			//GetCount
+			case 6:
+			{
+				*res = PrivateCount();
+				break;
+			}
+		}
+	}
+	__finally
+	{
+		mcs->Leave();
+    }
+}
+
+//---------------------------------------------------------------------------
+//	PrivateGetItem
+//
+//
+//---------------------------------------------------------------------------
+BCollection *BCollection::PrivateGetItem(int index)
+{
+	if(index<0 || index>=*Counter)
+		return NULL;
+	else
+		return Items[index];
+}
+
+//---------------------------------------------------------------------------
+//	PrivateAddItem
+//
+//
+//---------------------------------------------------------------------------
+BCollection *BCollection::GetItem(int index)
+{
+	return ActionOnCollection(1, NULL, index);
+}
+
+//---------------------------------------------------------------------------
+//	PrivateAddItem
+//
+//
+//---------------------------------------------------------------------------
+void BCollection::PrivateAddItem(BCollection *obj, int index)
+{
+	Items = (BCollection**)realloc(Items, ((*Counter)+1)*sizeof(BCollection*));
+	if(index >= *Counter)
+	{
+		Items[*Counter] = obj;
+	}
+	else if(index < *Counter)
+	{
+		for(int i=*Counter; i>index; i--)
+			Items[i] = Items[i-1];
+
+		Items[index] = obj;
+	}
+	*obj->ItemIndex = index;
+	obj->Parent = this;
+	(*Counter)++;
 }
 
 //---------------------------------------------------------------------------
@@ -26,21 +137,35 @@ BCollection::BCollection()
 //---------------------------------------------------------------------------
 void BCollection::AddItem(BCollection *obj, int index)
 {
-	Items = (BCollection**)realloc(Items, (Count+1)*sizeof(BCollection*));
-	if(index >= Count)
-	{
-		Items[Count] = obj;
-	}
-	else if(index < Count)
-	{
-		for(int i=Count; i>index; i--)
-			Items[i] = Items[i-1];
+	if(index < 0)
+		ActionOnCollection(0, obj, *Counter);
+	else
+		ActionOnCollection(0, obj, index);
+}
 
-		Items[index] = obj;
+//---------------------------------------------------------------------------
+//	PrivateDelete
+//
+//
+//---------------------------------------------------------------------------
+void BCollection::PrivateDelete(BCollection *obj)
+{
+	for(int i=(*Counter)-1; i>=0; i--)
+	{
+		if(Items[i] == obj)
+		{
+			SAFEDELETE(Items[i]);
+			for(int ii=i; ii<(*Counter)-1; ii++)
+				Items[ii] = Items[ii+1];
+
+			if(((*Counter)-1)>0)
+				Items = (BCollection**)realloc(Items, ((*Counter)-1)*sizeof(BCollection*));
+			else
+				SAFEDELETE(Items);
+			(*Counter)--;
+			break;
+		}
 	}
-	obj->ItemIndex = index;
-	obj->Parent = this;
-	Count++;
 }
 
 //---------------------------------------------------------------------------
@@ -50,22 +175,18 @@ void BCollection::AddItem(BCollection *obj, int index)
 //---------------------------------------------------------------------------
 void BCollection::Delete(BCollection *obj)
 {
-	for(int i=Count-1; i>=0; i--)
-	{
-		if(Items[i] == obj)
-		{
-			SAFEDELETE(Items[i]);
-			for(int ii=i; ii<Count-1; ii++)
-				Items[ii] = Items[ii+1];
+	ActionOnCollection(4, obj, -1);
+}
 
-			if((Count-1)>0)
-				Items = (BCollection**)realloc(Items, (Count-1)*sizeof(BCollection*));
-			else
-				SAFEDELETE(Items);
-			Count--;
-			break;
-		}
-	}
+//---------------------------------------------------------------------------
+// 	PrivateDeleteItem
+//
+//
+//---------------------------------------------------------------------------
+void BCollection::PrivateDeleteItem(int index)
+{
+	if(index >=0 && index < *Counter)
+		Delete(Items[index]);
 }
 
 //---------------------------------------------------------------------------
@@ -75,8 +196,23 @@ void BCollection::Delete(BCollection *obj)
 //---------------------------------------------------------------------------
 void BCollection::DeleteItem(int index)
 {
-	if(index >=0 && index < Count)
-		Delete(Items[index]);
+	ActionOnCollection(3, NULL, index);
+}
+
+
+//---------------------------------------------------------------------------
+//	PrivateDeleteAll
+//
+//
+//---------------------------------------------------------------------------
+void BCollection::PrivateDeleteAll()
+{
+	for(int i=(*Counter)-1; i>=0; i--)
+	{
+		SAFEDELETE(Items[i]);
+		(*Counter)--;
+	}
+	SAFEDELETEA(Items);
 }
 
 //---------------------------------------------------------------------------
@@ -86,12 +222,17 @@ void BCollection::DeleteItem(int index)
 //---------------------------------------------------------------------------
 void BCollection::DeleteAll()
 {
-	for(int i=Count-1; i>=0; i--)
-	{
-		SAFEDELETE(Items[i]);
-		Count--;
-	}
-	SAFEDELETEA(Items);
+	ActionOnCollection(5, NULL, -1);
+}
+
+//---------------------------------------------------------------------------
+//	PrivateGetItemIndex
+//
+//
+//---------------------------------------------------------------------------
+int BCollection::PrivateGetItemIndex()
+{
+	return *ItemIndex;
 }
 
 //---------------------------------------------------------------------------
@@ -101,7 +242,31 @@ void BCollection::DeleteAll()
 //---------------------------------------------------------------------------
 int BCollection::GetItemIndex()
 {
-	return ItemIndex;
+	int index = -1;
+	ActionOnCollection(2,NULL, -1, &index);
+	return index;
+}
+
+//---------------------------------------------------------------------------
+//	PrivateGetItemIndex
+//
+//
+//---------------------------------------------------------------------------
+int BCollection::PrivateCount()
+{
+	return *Counter;
+}
+
+//---------------------------------------------------------------------------
+//	GetItemIndex
+//
+//
+//---------------------------------------------------------------------------
+int BCollection::Count()
+{
+	int count = -1;
+	ActionOnCollection(6,NULL, -1, &count);
+	return count;
 }
 
 //---------------------------------------------------------------------------
@@ -111,6 +276,13 @@ int BCollection::GetItemIndex()
 //---------------------------------------------------------------------------
 BCollection::~BCollection()
 {
-	DeleteAll();
+	Parent = NULL;
+	if(Counter>0)
+		ActionOnCollection(5,NULL,-1);
+
+	Items = NULL;
+	SAFEDELETE(mcs);
+	SAFEDELETE(Counter);
+	SAFEDELETE(ItemIndex);
 }
 

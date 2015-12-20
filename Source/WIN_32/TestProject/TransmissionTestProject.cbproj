@@ -125,9 +125,16 @@
             <DependentOn>..\..\base_classes\b_collection.h</DependentOn>
             <BuildOrder>4</BuildOrder>
         </CppCompile>
+        <None Include="..\..\base_classes\b_defines.h">
+            <BuildOrder>21</BuildOrder>
+        </None>
         <CppCompile Include="..\..\base_classes\b_strings.cpp">
             <DependentOn>..\..\base_classes\b_strings.h</DependentOn>
             <BuildOrder>19</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="..\..\base_classes\b_thread_synchronize.cpp">
+            <DependentOn>..\..\base_classes\b_thread_synchronize.h</DependentOn>
+            <BuildOrder>20</BuildOrder>
         </CppCompile>
         <CppCompile Include="..\..\base_classes\b_transmission.cpp">
             <DependentOn>..\..\base_classes\b_transmission.h</DependentOn>
@@ -658,13 +665,13 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
-                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
             </Deployment>
             <Platforms>
                 <Platform value="Win32">True</Platform>

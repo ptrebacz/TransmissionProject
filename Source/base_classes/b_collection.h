@@ -2,20 +2,8 @@
 #define b_collectionH
 
 #include <stdlib.h>
-
-//---------------------------------------------------------------------------
-//	Universal definitions
-//
-//
-//---------------------------------------------------------------------------
-
-#ifndef __linux
-    #define NULL 0
-#endif
-
-#define SAFEDELETE(ptr){if(ptr){delete ptr; ptr = NULL;}}
-#define SAFEDELETEA(ptr){if(ptr){delete[] ptr; ptr = NULL;}}
-#define SAFEDELETEAA(ptr, size){if(ptr){for(int i=size-1; i>=0; i--){delete[] ptr[i]; ptr[i] = NULL;}}}
+#include "b_defines.h"
+#include "b_thread_synchronize.h"
 
 //---------------------------------------------------------------------------
 //	BCollection
@@ -25,21 +13,34 @@
 class BCollection
 {
 	private:
-		int ItemIndex;
+		MCriticalSection *mcs;
+		int *ItemIndex;
 		BCollection *Parent;
 
-	public:
-		int Count;
+		BCollection *ActionOnCollection(int, BCollection*, int, int *res = NULL);
+
+        virtual BCollection *PrivateGetItem(int);
+		void PrivateAddItem(BCollection *, int);
+		void PrivateDelete(BCollection *);
+		void PrivateDeleteItem(int);
+		void PrivateDeleteAll();
+		virtual int PrivateGetItemIndex();
+		int PrivateCount();
+
+		int *Counter;
 		BCollection **Items;
 
+	public:
 		BCollection();
 		virtual ~BCollection();
 
-		void AddItem(BCollection *, int);
+        virtual BCollection *GetItem(int);
+		void AddItem(BCollection *, int index = -1);
 		void Delete(BCollection *);
 		void DeleteItem(int);
 		void DeleteAll();
 		virtual int GetItemIndex();
+		int Count();
 };
 
 #endif
