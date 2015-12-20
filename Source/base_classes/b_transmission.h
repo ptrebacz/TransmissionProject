@@ -3,7 +3,7 @@
 #ifndef b_transmissionH
 #define b_transmissionH
 
-#include "basetypes.h"
+#include "b_collection.h"
 #include <System.hpp>
 
 class BTransmission;
