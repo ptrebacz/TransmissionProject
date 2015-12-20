@@ -1,10 +1,9 @@
-#ifdef _linux
+#ifdef __linux__
 #ifndef MAIN_H
 #define MAIN_H
 
-#include "b_collection.h";
-#include "b_transmission.h"
-#include "b_strings.h"
+#include "../../base_classes/b_basicclass.h"
+#include "../../base_classes/b_transmission.h"
 
 
 #endif

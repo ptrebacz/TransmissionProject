@@ -1,5 +1,3 @@
-//---------------------------------------------------------------------------
-
 #ifndef b_collectionH
 #define b_collectionH
 
@@ -11,7 +9,10 @@
 //
 //---------------------------------------------------------------------------
 
-#define NULL 0
+#ifndef __linux
+    #define NULL 0
+#endif
+
 #define SAFEDELETE(ptr){if(ptr){delete ptr; ptr = NULL;}}
 #define SAFEDELETEA(ptr){if(ptr){delete[] ptr; ptr = NULL;}}
 #define SAFEDELETEAA(ptr, size){if(ptr){for(int i=size-1; i>=0; i--){delete[] ptr[i]; ptr[i] = NULL;}}}

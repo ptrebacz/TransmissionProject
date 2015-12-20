@@ -1,6 +1,12 @@
+#ifndef bstringsH
+#define bstringsH
 //---------------------------------------------------------------------------
 
-#ifndef b_stringsH
-#define b_stringsH
-//---------------------------------------------------------------------------
+#ifdef __linux__
+    #include <string>
+    #include <iostream>
+
+    #define MString std::string
+#endif
+
 #endif
