@@ -5,6 +5,6 @@
 void main(int argc, char* argv[])
 {
 	BTransmission *transmission = new BTransmission();
-};
+}
 
 #endif
